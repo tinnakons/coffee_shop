@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:coffee_shop/helpers/jsonHelper.dart';
 import 'package:coffee_shop/helpers/slException.dart';
+import 'package:coffee_shop/main.dart';
 //import 'package:coffee_shop/helpers/webserviceHelpers.dart';
 import 'package:coffee_shop/models/member.dart';
 import 'package:coffee_shop/views/homeWidget.dart';
@@ -45,8 +46,8 @@ class LoginController extends BaseController implements IJSONController {
   Future<String> getResponseMap(String mb_user, String mb_password,BuildContext context) async {
     //var rest;
 
-    String url = 'http://172.17.80.163/rest-api-register-login-example-master/views/signin.php';
-    Map map = {'username': mb_user, 'passwords': mb_password};
+    String url = 'https://tinnakonp.000webhostapp.com/rest-api-coffee/views/signin.php';
+    Map map = {'username': mb_user.trim().toString(), 'passwords': mb_password.trim().toString()};
 
     http.Response response = await http.post(url,
         body: json.encode(map)); //await postRequestMap(url, map);
@@ -82,12 +83,6 @@ class LoginController extends BaseController implements IJSONController {
   Future<bool> setLoginPref(var rest) async {
     try{
       SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      
-
-
-      
-
       prefs.setString('id', _member.mbID);
       prefs.setString('status', _member.mbLogin);
       prefs.setString('username', _member.mbUSERNAME);
@@ -101,7 +96,7 @@ class LoginController extends BaseController implements IJSONController {
 
      
 
-      return prefs.setString('username', rest.toString());
+      return prefs.setString('login', rest.toString());
 
     }
     on Exception catch (e){
@@ -111,6 +106,18 @@ class LoginController extends BaseController implements IJSONController {
     } 
   }
 
+  Future<String> getLoginUID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    //prefs.remove('username');
+
+    String sum = prefs.getString('username');
+    //_member.mbLogin = prefs.getString('status');
+    //_member.mbID = prefs.getString('id');
+    
+    return sum;
+  }
+
   Future<Member> getLoginObject() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Member member = new Member();
@@ -118,6 +125,8 @@ class LoginController extends BaseController implements IJSONController {
     member.mbID = prefs.getString('id') ?? '';
     member.mbLogin = prefs.getString('status') ?? '';
     member.mbUSERNAME = prefs.getString('username') ?? '';
+
+  
     
    
     return member; //prefs.getString('username') ?? '';

@@ -8,10 +8,14 @@ import 'package:splashscreen/splashscreen.dart';
 
 
 void main() {
+
+  //Member member = new Member();
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp
                                             , DeviceOrientation.portraitDown])
     .then((_) {
+     
+      
       runApp(new MaterialApp(
                           home:SplashPage()
                           )
@@ -22,17 +26,53 @@ void main() {
 
 
 class SplashPage extends StatefulWidget {
+  
   @override
   _SplashPageState createState() => _SplashPageState();
 }
 
 class _SplashPageState extends State<SplashPage> {
+
+  bool loggedIn = false;
+  Member _member;
   
   LoginController loginController = new LoginController();
-  Member member = new Member();
+  //Member member = new Member();
+
+  Future<Null> _getLoginState() async {
+   
+    LoginController loginController = new LoginController();
+    String uid = await loginController.getLoginUID();
+    Member member = await loginController.getLoginObject();
+    this.setState(() {
+      if (uid != "" && uid != null) {
+        loggedIn = true;
+        _member = member;
+      } else {
+        loggedIn = false;
+        _member = null;
+      }
+    });
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    this._getLoginState();
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return SplashScreen(
+      navigateAfterSeconds: loggedIn==false?LoginWidget(member: _member,):HomeMenu(member: _member,)
+      /*?_member.mbUSERNAME != null
+      ?_member.mbUSERNAME == null
+      :HomeMenu(member: _member)     
+      :LoginWidget(member: _member,)*/
+      ,
       loadingText: Text('LOADING...',
       style: new TextStyle(
         fontFamily: 'THSarabunNew',
@@ -40,7 +80,7 @@ class _SplashPageState extends State<SplashPage> {
         fontSize: 16.0
       ),),
       seconds: 4,
-      navigateAfterSeconds: LoginWidget(member: member),//Dashboard()
+      //Dashboard()
       title: new Text('Coffee Shop',
       style: new TextStyle(
         fontFamily: 'THSarabunNew',

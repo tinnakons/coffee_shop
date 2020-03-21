@@ -72,6 +72,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       loginController.doLogin(txt_username.text, txt_password.text, context);
 
+      
+
 
       //member.mbID = '12345678';
 
