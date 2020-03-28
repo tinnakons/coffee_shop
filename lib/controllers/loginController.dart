@@ -27,11 +27,16 @@ class LoginController extends BaseController implements IJSONController {
 
   void doLogin(String username, String password, BuildContext context) async {
     try {
-      getResponseMap(username, password,context);
+      getResponseMap(username, password, context);
       //print(_member.mbUSERNAME);
 
+      //print(getResponseMap(username, password,context).toString());
 
-     
+      /*if(getResponseMap(username, password,context).toString() == 'false'){
+        print('123456789');
+ 
+      }*/
+
     } on SLException catch (e) {
       print(e);
 
@@ -43,11 +48,16 @@ class LoginController extends BaseController implements IJSONController {
   }
 
   @override
-  Future<String> getResponseMap(String mb_user, String mb_password,BuildContext context) async {
+  Future<String> getResponseMap(
+      String mb_user, String mb_password, BuildContext context) async {
     //var rest;
 
-    String url = 'https://tinnakonp.000webhostapp.com/rest-api-coffee/views/signin.php';
-    Map map = {'username': mb_user.trim().toString(), 'passwords': mb_password.trim().toString()};
+    String url =
+        'https://tinnakonp.000webhostapp.com/rest-api-coffee/views/signin.php';
+    Map map = {
+      'username': mb_user.trim().toString(),
+      'passwords': mb_password.trim().toString()
+    };
 
     http.Response response = await http.post(url,
         body: json.encode(map)); //await postRequestMap(url, map);
@@ -60,28 +70,54 @@ class LoginController extends BaseController implements IJSONController {
     //print(rest['status'].toString());
 
     if (rest['status'].toString() != 'false') {
-
-
       _member.mbID = rest['id'].toString();
       _member.mbUSERNAME = rest['username'].toString();
       _member.mbLogin = rest['status'].toString();
 
       setLoginPref(rest);
 
-       Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomeMenu(member: _member,)));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomeMenu(
+                    member: _member,
+                  )));
 
-
-     
-      return 'true';
+      //return 'true';
     } else {
-      return 'false';
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('ผิดพลาด'),
+            content: const Text('Username และ Password \nไม่ถูกต้องกรุณาตรวจสอบอีกครั้งครับ'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      /*showDialog(
+    context: context,
+    builder: (BuildContext context){
+        return AlertDialog(
+          title: Text("Alert Dialog"),
+          content: Text("Dialog Content"),
+        );
+    }
+  );*/
+      //return 'false';
     }
   }
 
   Future<bool> setLoginPref(var rest) async {
-    try{
+    try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('id', _member.mbID);
       prefs.setString('status', _member.mbLogin);
@@ -93,17 +129,11 @@ class LoginController extends BaseController implements IJSONController {
 
       //print(_member.mbUSERNAME);
 
-
-     
-
       return prefs.setString('login', rest.toString());
-
-    }
-    on Exception catch (e){
+    } on Exception catch (e) {
       print(e.toString());
-        return false;
-
-    } 
+      return false;
+    }
   }
 
   Future<String> getLoginUID() async {
@@ -114,7 +144,7 @@ class LoginController extends BaseController implements IJSONController {
     String sum = prefs.getString('username');
     //_member.mbLogin = prefs.getString('status');
     //_member.mbID = prefs.getString('id');
-    
+
     return sum;
   }
 
@@ -126,12 +156,8 @@ class LoginController extends BaseController implements IJSONController {
     member.mbLogin = prefs.getString('status') ?? '';
     member.mbUSERNAME = prefs.getString('username') ?? '';
 
-  
-    
-   
     return member; //prefs.getString('username') ?? '';
   }
-
 
   @override
   Future<Member> getStudentJSONData(
@@ -158,15 +184,10 @@ class LoginController extends BaseController implements IJSONController {
       //member.mbPHONE = jsonMap['contact'];
       //member.mbBIRTH = jsonMap['birth'];
 
-
       return member;
     } on Exception catch (e) {
       print(e);
       return null;
     }
   }
-
-  
-
-
 }
